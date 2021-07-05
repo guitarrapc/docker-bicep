@@ -7,4 +7,6 @@ RUN curl -Lo bicep https://github.com/Azure/bicep/releases/download/v${BICEP_VER
     && chmod +x ./bicep \
     && mv ./bicep /usr/local/bin/bicep
 
+WORKDIR /bicep
+
 ENTRYPOINT [ "bicep" ]
