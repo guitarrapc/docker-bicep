@@ -1,0 +1,28 @@
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  OWNER: guitarrapc
+  IMAGE_NAME: docker-bicep
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        file: [Dockerfile, Dockerfile.devcontainer]
+        include:
+          - file: Dockerfile
+            tag-prefix: ""
+          - file: Dockerfile.devcontainer
+            tag-prefix: devcontainer-
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
+  

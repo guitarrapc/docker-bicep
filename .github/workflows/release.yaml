@@ -20,25 +20,33 @@ env:
 
 jobs:
   build-release:
+    strategy:
+      matrix:
+        file: [Dockerfile, Dockerfile.devcontainer]
+        include:
+          - file: Dockerfile
+            tag-prefix: ""
+          - file: Dockerfile.devcontainer
+            tag-prefix: devcontainer-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       # docker
-      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:latest .
-      - run: docker tag ${OWNER}/${IMAGE_NAME}:latest ${OWNER}/${IMAGE_NAME}:${GIT_TAG}
+      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
+      - run: docker tag ${{ env.OWNER }}}/${{ env.IMAGE_NAME }}:latest ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
       - run: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
         env:
           DOCKER_USER: ${{ secrets.SYNCED_DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.SYNCED_DOCKER_PASS }}
-      - run: docker push ${OWNER}/${IMAGE_NAME}
-        if: github.event.inputs.dry_run == 'false'
-      - run: docker push ${OWNER}/${IMAGE_NAME}:${GIT_TAG}
-        if: github.event.inputs.dry_run == 'false'
+      - run: docker push ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest
+        if: env.DRY_RUN == 'false'
+      - run: docker push ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
+        if: env.DRY_RUN == 'false'
       # tag
       - run: git tag ${{ env.GIT_TAG }}
-        if: github.event.inputs.dry_run == 'false'
+        if: env.DRY_RUN == 'false'
       - name: Push changes
-        if: github.event.inputs.dry_run == 'false'
+        if: env.DRY_RUN == 'false'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
@@ -46,7 +54,7 @@ jobs:
           tags: true
       # release
       - uses: actions/create-release@v1
-        if: github.event.inputs.dry_run == 'false'
+        if: env.DRY_RUN == 'false'
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
