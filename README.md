@@ -6,22 +6,26 @@ docker image for [bicep](https://github.com/Azure/bicep)
 docker run --rm guitarrapc/docker-bicep:latest --help
 ```
 
-# Samples
+# Images
 
 There are 2 images.
 
-1. `guitarrapc/docker-bicep:devcontainers-latest` : [VS Code Dev Dev Remote-Container](https://code.visualstudio.com/docs/remote/containers#_getting-started) image
-1. `guitarrapc/docker-bicep:latest` : Standalone Container image
+1. `guitarrapc/docker-bicep:devcontainers-latest` : Image for [VS Code Dev Dev Remote-Container](https://code.visualstudio.com/docs/remote/containers#_getting-started) image
+    ```
+    docker pull guitarrapc/docker-bicep:devcontainers-latest
+    ```
+1. `guitarrapc/docker-bicep:latest` : Image for Standalone execution
+    ```
+    docker pull guitarrapc/docker-bicep:latest
+    ```
+
+# Samples
 
 ## docker-bicep:devcontainers sample
 
 You can launch bicep on VS Code Remote Container.
 
-Create `.devcontainer` folder and put `.devcontainer/devcontainer.json` and `.devcontainer/Dockerfile`.
-
-> see [.devcontainer](https://github.com/guitarrapc/docker-bicep/tree/main/.devcontainer) for sample .devcontainer structure.
-
-Launch VS Code and open Command Pallete, select `Remote-Container: Reopen in Container`.
+Launch VS Code, Ipen Command Pallete, Select `Remote-Container: Reopen in Container`.
 
 Now you are working in the bicep container.
 
@@ -30,12 +34,17 @@ $ bicep --help
 $ bicep build ./sample/main.bicep
 ```
 
+To work with your environment, create `.devcontainer` folder and put `.devcontainer/devcontainer.json` and `.devcontainer/Dockerfile`.
+
+> see [.devcontainer](https://github.com/guitarrapc/docker-bicep/tree/main/.devcontainer) for sample .devcontainer structure.
+
 ## docker-bicep sample
 
 Working dir is `/bicep`, you can mount your files to and run command.
-Here's sample to build your bicep to ARM template json.
+Here's sample to build bicep to ARM template json.
 
 > ./sample/main.bicep
+
 ```bicep
 param location string = resourceGroup().location
 param namePrefix string = 'storage'
