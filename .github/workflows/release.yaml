@@ -20,7 +20,6 @@ env:
 
 jobs:
   build-release:
-    name: release ${{ github.event.inputs.tag  }}
     strategy:
       matrix:
         file: [Dockerfile, Dockerfile.devcontainer]
