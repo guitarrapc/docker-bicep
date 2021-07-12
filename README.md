@@ -21,7 +21,7 @@ There are 2 images.
 
 # Samples
 
-## docker-bicep:devcontainers sample
+## docker-bicep:devcontainers with VS Code
 
 You can launch bicep on VS Code Remote Container.
 
@@ -38,7 +38,7 @@ To work with your environment, create `.devcontainer` folder and put `.devcontai
 
 > see [.devcontainer](https://github.com/guitarrapc/docker-bicep/tree/main/.devcontainer) for sample .devcontainer structure.
 
-## docker-bicep sample
+## docker-bicep with docker run
 
 Working dir is `/bicep`, you can mount your files to and run command.
 Here's sample to build bicep to ARM template json.
@@ -125,6 +125,47 @@ bicep generate ARM template json.
     }
   }
 }
+```
+
+## docker-bicep with docker-compose
+
+To run bicep on docker-compose, prepare compose first.
+This Compose will persistent your azure credentials even if compose down.
+
+```yaml
+services:
+  bicep:
+    image: guitarrapc/docker-bicep:0.4.63
+    entrypoint: /bin/sh
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/bicep
+      - azure:/root/.azure
+
+volumes:
+  azure:
+    driver: local
+```
+
+Run compose.
+
+```
+$ docker-compose up -d
+```
+
+login to container and create credentials.
+
+```
+$ docker-compose exec bicep /bin/bash
+# inside container, login to azure.
+# az login
+```
+
+Now you can run bicep.
+
+```
+# bicep build
 ```
 
 # TIPS
