@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/azure-cli:2.9.1
+FROM mcr.microsoft.com/azure-cli:2.26.1
 
 ENV BICEP_VERSION=0.4.412
 LABEL version=${BICEP_VERSION}
