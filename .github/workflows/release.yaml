@@ -19,7 +19,7 @@ env:
   DRY_RUN: ${{ github.event.inputs.dry_run }}
 
 jobs:
-  build-release:
+  build-push:
     strategy:
       matrix:
         file: [Dockerfile, Dockerfile.devcontainer]
@@ -31,30 +31,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # docker
-      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
-      - run: docker tag ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
-      - run: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      # build
+      - name: Docker build Dockerfile
+        run: |
+          docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
+          docker tag ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
+      # push
+      - name: Docker login
+        run: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
         env:
           DOCKER_USER: ${{ secrets.SYNCED_DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.SYNCED_DOCKER_PASS }}
-      - run: docker push ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest
-        if: env.DRY_RUN == 'false'
-      - run: docker push ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
-        if: env.DRY_RUN == 'false'
+      - if: env.DRY_RUN == 'false'
+        name: Docker push
+        run: |
+          docker push ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest
+          docker push ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
+
+  release:
+    needs: [build-push]
+    if: env.DRY_RUN == 'false'
+    runs-on: ubuntu-latest
+    steps:
       # tag
-      - run: git tag ${{ env.GIT_TAG }}
-        if: env.DRY_RUN == 'false'
-      - name: Push changes
-        if: env.DRY_RUN == 'false'
+      - name: Git tag
+        run: git tag ${{ env.GIT_TAG }}
+      - name: Git push tag
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
           branch: ${{ github.ref }}
           tags: true
       # release
-      - uses: actions/create-release@v1
-        if: env.DRY_RUN == 'false'
+      - name: Create github release
+        uses: actions/create-release@v1
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}

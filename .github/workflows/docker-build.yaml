@@ -24,5 +24,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
-  
+      - name: Docker build
+        run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
