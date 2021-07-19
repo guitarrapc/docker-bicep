@@ -50,7 +50,7 @@ jobs:
 
   release:
     needs: [build-push]
-    if: env.DRY_RUN == 'false'
+    if: github.event.inputs.dry_run == 'false'
     runs-on: ubuntu-latest
     steps:
       # tag
