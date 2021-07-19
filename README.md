@@ -176,3 +176,8 @@ Now you can run bicep.
 docker build -t bicep -f Dockerfile .
 docker run -it --rm bicep:latest --help
 ```
+
+## Opening on Remote-Container and open bicep shows failed to install dotnet
+
+Failed dotnet install stop bicep intellisence.
+`rebuild container image` will fix this issue.

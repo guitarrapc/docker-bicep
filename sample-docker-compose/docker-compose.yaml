@@ -1,6 +1,6 @@
 services:
   bicep:
-    image: guitarrapc/docker-bicep:0.4.63
+    image: guitarrapc/docker-bicep:0.4.412
     entrypoint: /bin/sh
     tty: true
     stdin_open: true
