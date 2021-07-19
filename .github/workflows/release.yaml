@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # build
-      - name: Docker build Dockerfile
+      - name: Docker build
         run: |
           docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest -f ${{ matrix.file }} .
           docker tag ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}latest ${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ env.GIT_TAG }}
