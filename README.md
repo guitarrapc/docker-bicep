@@ -2,6 +2,8 @@
 
 docker image for [bicep](https://github.com/Azure/bicep)
 
+[Dockerfile](https://github.com/guitarrapc/docker-bicep/blob/main/Dockerfile)
+
 ```shell
 docker run --rm guitarrapc/docker-bicep:latest --help
 ```
