@@ -1,8 +1,9 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.163.1/containers/ubuntu/.devcontainer/base.Dockerfile
 
-# [Choice] Ubuntu version: bionic, focal
-ARG VARIANT="focal"
-FROM mcr.microsoft.com/vscode/devcontainers/base:0-${VARIANT}
+# https://github.com/microsoft/vscode-dev-containers/blob/main/containers/dotnet/.devcontainer/Dockerfile
+# [Choice] dotnet version: 6.0, 5.0, 3.1, 6.0-bullseye, 5.0-bullseye, 3.1-bullseye, 6.0-focal, 5.0-focal, 3.1-focal
+ARG VARIANT=6.0-focal
+FROM mcr.microsoft.com/vscode/devcontainers/dotnet:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -15,16 +16,18 @@ LABEL version=${BICEP_VERSION}
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends curl build-essential
 
-# install dotnet sdk
-RUN curl -O -L -s https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
-    && sudo dpkg -i packages-microsoft-prod.deb \
-    && sudo apt-get update && sudo apt install -y apt-transport-https \
-    && sudo apt-get install -y dotnet-sdk-5.0
-
 # install azure-cli
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+# https://docs.microsoft.com/ja-jp/cli/azure/install-azure-cli-linux?pivots=apt
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl apt-transport-https lsb-release gnupg \
+    && curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null \
+    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list \
+    && apt-get update && apt-get install -y --no-install-recommends azure-cli \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && az --version
 
 # install bicep
-RUN curl -Lo bicep https://github.com/Azure/bicep/releases/download/v${BICEP_VERSION}/bicep-linux-x64 \
+RUN curl -sLo bicep https://github.com/Azure/bicep/releases/download/v${BICEP_VERSION}/bicep-linux-x64 \
     && chmod +x ./bicep \
-    && mv ./bicep /usr/local/bin/bicep
+    && mv ./bicep /usr/local/bin/bicep \
+    && bicep --version
