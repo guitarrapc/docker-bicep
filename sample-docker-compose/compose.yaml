@@ -1,7 +1,7 @@
 services:
   bicep:
-    image: guitarrapc/docker-bicep:0.4.1008
-    entrypoint: /bin/sh
+    image: guitarrapc/docker-bicep:0.5.6
+    entrypoint: /bin/bash
     tty: true
     stdin_open: true
     volumes:
@@ -9,5 +9,4 @@ services:
       - azure:/root/.azure
 
 volumes:
-  azure:
-    driver: local
+  azure: {}
